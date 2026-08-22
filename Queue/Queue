@@ -1,1 +1,130 @@
+#include <stdio.h>
+
+#define MAXSIZE 100
+
+typedef struct
+{
+	int data[MAXSIZE];
+	int front;
+	int rear;
+}SeqQueue;
+
+void Queue_Init(SeqQueue* q)
+{
+	q->front = 0;
+	q->rear = 0;
+}
+
+int Queue_Empty(SeqQueue* q)
+{
+	return q->front == q->rear;
+}
+
+int Queue_Full(SeqQueue* q)
+{
+	return (q->rear + 1) % MAXSIZE == q->front;
+}
+
+void Queue_Insert(SeqQueue* q,int value)
+{
+	if (Queue_Full(q))
+	{
+		printf("Queue is full\n");
+		return;
+	}
+
+	q->data[q->rear] = value;
+	q->rear = (q->rear + 1) % MAXSIZE;
+}
+
+int Queue_Get(SeqQueue* q)
+{
+	if (Queue_Empty(q))
+	{
+		printf("Queue is empty\n");
+		return -1;
+	}
+	int value = q->data[q->front];
+	q->front = (q->front + 1) % MAXSIZE;
+	return value;
+}
+
+void Queue_Print(SeqQueue* q)
+{
+	if (Queue_Empty(q))
+	{
+		printf("Queue is empty\n");
+		return;
+	}
+	for (int i = q->front; i != q->rear; i = (i + 1) % MAXSIZE)
+	{
+		printf("%d ", q->data[i]);
+	}
+		 
+}
+
+void Queue_Length(SeqQueue* q)
+{
+	if (Queue_Empty(q))
+	{
+		printf("Queue is empty\n");
+		return;
+	}
+	int length = (q->rear - q->front + MAXSIZE) % MAXSIZE;
+	printf("Queue length: %d\n", length);
+}
+
+int main()
+{
+    SeqQueue q;
+    Queue_Init(&q);
+
+    printf("===== Test 1: Dequeue from empty queue =====\n");
+    int x = Queue_Get(&q);
+    printf("Returned: %d\n\n", x);
+
+    printf("===== Test 2: Enqueue elements =====\n");
+    Queue_Insert(&q, 10);
+    Queue_Insert(&q, 20);
+    Queue_Insert(&q, 30);
+    Queue_Insert(&q, 40);
+    Queue_Print(&q);          // 期望: 10 20 30 40
+    Queue_Length(&q);        // 期望: Queue length: 4
+    printf("\n");
+
+    printf("===== Test 3: Dequeue twice =====\n");
+    int a = Queue_Get(&q);
+    int b = Queue_Get(&q);
+    printf("Got %d and %d from queue\n", a, b);  // 期望: 10 and 20
+    Queue_Print(&q);          // 期望: 30 40
+    Queue_Length(&q);        // 期望: Queue length: 2
+    printf("\n");
+
+    printf("===== Test 4: Enqueue more =====\n");
+    Queue_Insert(&q, 50);
+    Queue_Insert(&q, 60);
+    Queue_Print(&q);          // 期望: 30 40 50 60
+    Queue_Length(&q);        // 期望: Queue length: 4
+    printf("\n");
+
+    printf("===== Test 5: Check empty/full status =====\n");
+    printf("Is empty: %s\n", Queue_Empty(&q) ? "yes" : "no");
+    printf("Is full: %s\n", Queue_Full(&q) ? "yes" : "no");
+    printf("\n");
+
+    printf("===== Test 6: Fill up to max capacity =====\n");
+    // MAXSIZE=100, 目前有4个，再插94个到快满
+    for (int i = 70; i <= 160; i++)
+    {
+        Queue_Insert(&q, i);
+    }
+    Queue_Print(&q);          // 打印很长一串
+    Queue_Length(&q);        // 期望: Queue length: 99 (MAXSIZE-1)
+    printf("Is full: %s\n\n", Queue_Full(&q) ? "yes" : "no");
+
+    printf("===== Test 7: Try to enqueue when full =====\n");
+    Queue_Insert(&q, 999);    // 应该报错: Queue is full
+
+    return 0;
+}
 
